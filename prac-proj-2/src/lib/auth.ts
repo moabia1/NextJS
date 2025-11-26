@@ -41,7 +41,36 @@ const authOptions:NextAuthOptions = {
 
     })
   ],
-  callbacks:{},
+  callbacks: {
+    async jwt({token,user}) {
+      if (user) {
+        token.id = user.id
+        token.name = user.name
+        token.email = user.email
+        token.image = user.image
+      }
+      return token
+    },
+    session({ session, token }) {
+      if (session.expires) {
+        session.user.id = token.id as string
+        session.user.name = token.name
+        session.user.email = token.email
+        session.user.image = token.image as string
+      }
+      return session
+    }
+  },
+
+  session: {
+    strategy: 'jwt',
+    maxAge:3 * 24 * 60 * 60 * 1000
+  },
+  pages: {
+    signIn: "/login",
+    error:"/login"
+  },
+  secret:process.env.NEXT_AUTH_SECRET
 }
 
 export default authOptions
