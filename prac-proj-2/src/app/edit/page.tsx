@@ -1,4 +1,5 @@
 "use client"
+import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
@@ -20,6 +21,21 @@ const Edit = () => {
     setFrontImg(URL.createObjectURL(file))
   }
 
+  const handleSubmit = async (e:React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("name", name)
+      if (backImg) {
+        formData.append("file",backImg)
+      }
+      const result = await axios.post("/api/edit", formData);
+      console.log(result)
+    } catch (error) {
+      console.log("Update profile :",error)
+    }
+  }
+
   useEffect(() => {
     if (data) {
       setName(data.user.name as string)
@@ -33,7 +49,7 @@ const Edit = () => {
         <h1 className="text-2xl font-semibold text-center mb-2">
           Edit Profile
         </h1>
-        <form className="space-y-2 flex flex-col w-full items-center">
+        <form onSubmit={handleSubmit} className="space-y-2 flex flex-col w-full items-center">
           <div onClick={()=>imageInput.current?.click()} className="w-24 h-24 rounded-full border-2 flex justify-center items-center border-white transition-all hover:border-blue-500 text-white hover:text-blue-500 cursor-pointer overflow-hidden  relative">
             <input type="file" accept='image/*' hidden ref={imageInput} onChange={handleImage}/>
             {frontImg ? (
