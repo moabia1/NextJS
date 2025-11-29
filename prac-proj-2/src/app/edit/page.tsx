@@ -1,14 +1,16 @@
 "use client"
+import { userDataContext } from '@/context/UserContext';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useContext, useEffect, useRef, useState } from 'react'
 import { CgProfile } from "react-icons/cg";
 
 const Edit = () => {
 
-  const { data } = useSession();
+  const data = useContext(userDataContext)
   const [name, setName] = useState("")
+  const [loading, setLoading] = useState(false)
   const [frontImg, setFrontImg] = useState("")
   const [backImg, setBackImg] = useState<File>()
   const imageInput = useRef<HTMLInputElement>(null)
@@ -23,6 +25,7 @@ const Edit = () => {
 
   const handleSubmit = async (e:React.FormEvent) => {
     e.preventDefault();
+    setLoading(true)
     try {
       const formData = new FormData();
       formData.append("name", name)
@@ -30,16 +33,19 @@ const Edit = () => {
         formData.append("file",backImg)
       }
       const result = await axios.post("/api/edit", formData);
+      setLoading(false)
       console.log(result)
+      data?.setUser(result.data.user)
     } catch (error) {
+      setLoading(false)
       console.log("Update profile :",error)
     }
   }
 
   useEffect(() => {
     if (data) {
-      setName(data.user.name as string)
-      setFrontImg(data.user.image as string)
+      setName(data.user?.name as string)
+      setFrontImg(data.user?.image as string)
     }
   },[data])
   
@@ -69,7 +75,7 @@ const Edit = () => {
               className="w-full border-b border-white text-white px-1 py-2 outline-none placeholder-gray-400 bg-black"
             />
           </div>
-          <button className='w-full py-2 text-xl px-4 font-semibold bg-white text-black rounded-lg hover:bg-gray-200 transition-color cursor-pointer'>Save</button>
+          <button className='w-full py-2 text-xl px-4 font-semibold bg-white text-black rounded-lg hover:bg-gray-200 transition-color cursor-pointer'>{loading ? "Updating...":"Save"}</button>
         </form>
       </div>
     </div>

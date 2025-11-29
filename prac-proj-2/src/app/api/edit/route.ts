@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
     const name = (await formData).get("name") as string
     const file = (await formData).get("file") as Blob | null
 
-    let imageUrl = session.user.image ?? null
+    let imageUrl; 
     if (file) {
       imageUrl = await uploadOnCloudinary(file)
     }
 
-    const user = await User.findByIdAndUpdate(session.user.id, { name, image: imageUrl },{new:true})
+    const user = await User.findByIdAndUpdate(session.user.id, { name, image: imageUrl }, { new: true })
     if (!user) {
       return NextResponse.json({message:"User not found"},{status:400})
     }

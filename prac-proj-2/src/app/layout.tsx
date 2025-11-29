@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ClientProvider from "@/ClientProvider";
-
+import UserContext from "@/context/UserContext";
 
 export const metadata: Metadata = {
   title: "First FullStack using nextJS",
@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ClientProvider>
-          {children}
+          <UserContext>{children}</UserContext>
         </ClientProvider>
       </body>
     </html>
